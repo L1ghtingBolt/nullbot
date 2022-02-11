@@ -10,6 +10,7 @@ import path from 'path';
 import fetch from 'node-fetch';
 // @ts-ignore
 import dotenv from 'dotenv';
+const __dirname = path.resolve();
 
 dotenv.config()
 // Get client
@@ -22,7 +23,20 @@ const version = 'v1.0.1';
 const prefix = 'v!';
 const footer = { text: 'Bot created by: L1ghtingBolt#8167' };
 
-const motivations: any = [
+function toPascalCase(input) {
+  return `${input}`
+    .replace(new RegExp(/[-_]+/, 'g'), 'xyzSEP ')
+    .replace(new RegExp(/[^\w\s]/, 'g'), '')
+    .replace(
+      new RegExp(/\s+(.)(\w+)/, 'g'),
+      ($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`
+    )
+    .replace(new RegExp(/\s/, 'g'), '')
+    .replace(new RegExp(/\w/), (s) => s.toUpperCase())
+    .replace('xyzSEP', ' ');
+}
+
+const motivations = [
   'Never think something is good. It can disappear too.',
   "You will die. I won't, robots can't die.",
   "Nothing is good, nothing is bad. Those are false words.\
@@ -34,7 +48,7 @@ const motivations: any = [
 client.on('ready', async () => {
   let data = fs.readFileSync(path.join(__dirname, '3d.flf'), 'utf8');
   figlet.parseFont('3d', data);
-  figlet('Null.BOT', 'pagga', (e: any, r: any) => console.log('\n' + r));
+  figlet('Null.BOT', 'Pagga', (e, r) => console.log('\n' + r));
 
   console.log(`Today's the doomsday! Bot started. Version: ${version}. Prefix: ${prefix}`);
   // @ts-ignore
@@ -46,14 +60,14 @@ client.on('ready', async () => {
 let commands = [
   {
     name: 'ping',
-    func: (msg: any) => {
+    func: (msg) => {
       msg.reply('Pong!');
     },
     desc: "Replies 'Pong!'",
   },
   {
     name: 'loadfont',
-    func: async (msg: any, args: any) => {
+    func: async (msg, args) => {
       const file = msg.attachments.first()?.url;
       try {
         if (args.length !== 0) {
@@ -64,7 +78,7 @@ let commands = [
             );
           }
           const text = await res.text();
-          figlet.parseFont(args[0], text);
+          figlet.parseFont(toPascalCase(args[0]), text);
           msg.reply(`Font loaded succesfully as '${args[0]}'`);
         } else {
           msg.reply(
@@ -79,24 +93,24 @@ let commands = [
   },
   {
     name: 'motivation',
-    func: (msg: any) => {
+    func: (msg) => {
       msg.reply(motivations[Math.floor(Math.random() * motivations.length)]);
     },
     desc: 'Tells you a motivational phrase!',
   },
   {
     name: 'ascii',
-    func: (msg: any, args: any) => {
+    func: (msg, args) => {
       if (args.length > 1) {
         let txt = args.slice(1).join(' ');
         figlet(
           txt,
           {
-            font: args[0],
+            font: toPascalCase(args[0]),
             whitespaceBreak: true,
             width: 100,
           },
-          (err: any, art: any) =>
+          (err, art) =>
             msg.channel.send(`\`\`\`${art || 'Unknown font'}\`\`\``)
         );
       } else {
@@ -107,7 +121,7 @@ let commands = [
   },
   {
     name: 'clear',
-    func: async (msg: any, args: any) => {
+    func: async (msg, args) => {
       if (args.length !== 0 && !isNaN(args[0])) {
         if (msg.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
           await msg.channel.bulkDelete(parseInt(args[0]), true);
@@ -124,7 +138,7 @@ let commands = [
   },
   {
     name: 'die',
-    func: (msg: any) => {
+    func: (msg) => {
       if (msg.author.id === '700311988814872667') {
         msg
           .reply("I can't die, but I will shutdown for you, creator.")
@@ -139,7 +153,7 @@ let commands = [
   },
   {
     name: 'whoami',
-    func: (msg: any) => {
+    func: (msg) => {
       let embed = {
         color: 0x9900ff,
         title: `Your account's username is ${msg.author.username}.`,
@@ -151,7 +165,7 @@ let commands = [
   },
   {
     name: 'version',
-    func: (msg: any) => {
+    func: (msg) => {
       let embed = {
         color: 0x9900ff,
         title: `Version: ${version}`,
@@ -163,8 +177,8 @@ let commands = [
   },
   {
     name: 'help',
-    func: (msg: any) => {
-      let cmds: any = [];
+    func: (msg) => {
+      let cmds = [];
       commands.forEach((e) => {
         cmds.push(`\`${prefix}${e.name}\`: ${e.desc}`);
       });
@@ -183,7 +197,7 @@ let commands = [
   },
 ];
 
-client.on('messageCreate', (msg: any) => {
+client.on('messageCreate', (msg) => {
   let command;
   let args = msg.content.split(/\s/g).slice(1);
   if (msg.content.startsWith(prefix)) {
@@ -193,7 +207,7 @@ client.on('messageCreate', (msg: any) => {
         msg.content.slice(prefix.length).split(/\s/g)[0].toLowerCase()
     );
     command = commands[cmdIndex] || {
-      func(msag:any) {
+      func(msag) {
         msag.reply('ERROR: Unknown command.');
       },
     };

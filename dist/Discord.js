@@ -44,6 +44,7 @@ const node_fetch_1 = __importDefault(require("node-fetch"));
 // @ts-ignore
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+// Get client
 const client = new discord_js_1.default.Client({
     intents: ['GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES'],
     partials: ['CHANNEL'],
@@ -63,7 +64,7 @@ client.on('ready', () => __awaiter(void 0, void 0, void 0, function* () {
     let data = fs_1.default.readFileSync(path_1.default.join(__dirname, '3d.flf'), 'utf8');
     figlet_1.default.parseFont('3d', data);
     (0, figlet_1.default)('Null.BOT', 'pagga', (e, r) => console.log('\n' + r));
-    console.log(`Today's the doomsday! Bot started.`, version, prefix);
+    console.log(`Today's the doomsday! Bot started. Version: ${version}. Prefix: ${prefix}`);
     // @ts-ignore
     client.user.setActivity(`Doomsday. ${prefix}help`, {
         type: 'STREAMING',
