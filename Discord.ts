@@ -36,7 +36,7 @@ client.on('ready', async () => {
   figlet.parseFont('3d', data);
   figlet('Null.BOT', 'pagga', (e: any, r: any) => console.log('\n' + r));
 
-  console.log(`Today's the doomsday! Bot started.`, version, prefix);
+  console.log(`Today's the doomsday! Bot started. Version: ${version}. Prefix: ${prefix}`);
   // @ts-ignore
   client.user.setActivity(`Doomsday. ${prefix}help`, {
     type: 'STREAMING',

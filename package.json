@@ -1,10 +1,13 @@
 {
   "name": "nullbot",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/Discord.js",
   "repository": "https://github.com/L1ghtingBolt/nullbot.git",
   "author": "L1ghtingBolt <82386159+L1ghtingBolt@users.noreply.github.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "tsc && node ."
+  },
   "dependencies": {
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
