@@ -12,7 +12,7 @@ import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 
 dotenv.config()
-
+// Get client
 const client = new Discord.Client({
   intents: ['GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES'],
   partials: ['CHANNEL'],
