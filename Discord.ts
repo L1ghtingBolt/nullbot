@@ -81,8 +81,12 @@ let commands = [
     func: (msg: any, args: any) => {
       if (args.length > 1) {
         let txt = args.slice(1).join(' ');
-        figlet(txt, args[0], (err: any, art: any) =>
-          msg.channel.send(`\`\`\`${art}\`\`\``)
+        figlet(txt, {
+          font: args[0],
+          whitespaceBreak: true,
+          width: 100,
+        }, (err: any, art: any) =>
+          msg.channel.send(`\`\`\`${art || 'Unknown font'}\`\`\``)
         );
       } else {
         msg.reply(`ERROR! Correct syntax: ${prefix}ascii \`font\` \`text\``);
@@ -189,7 +193,7 @@ client.on('messageCreate', (msg: any) => {
     return;
   }
   if (command.func) {
-    command.func(msg, args, args.join(' '));
+    command.func(msg, args);
   }
 });
 
