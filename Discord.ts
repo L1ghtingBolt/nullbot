@@ -5,7 +5,10 @@ import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
 
-const client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
+const client = new Discord.Client({
+  intents: ['GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES'],
+  partials: ['CHANNEL'],
+});
 
 const version = 'v1.0.1';
 const prefix = 'v!';
@@ -23,7 +26,7 @@ const motivations: any = [
 client.on('ready', async () => {
   let data = fs.readFileSync(path.join(__dirname, '3d.flf'), 'utf8');
   figlet.parseFont('3d', data);
-  figlet('Null.BOT', '3d', (e: any, r: any) => console.log('\n' + r));
+  figlet('Null.BOT', 'pagga', (e: any, r: any) => console.log('\n' + r));
 
   console.log(`Today's the doomsday! Bot started.`, version, prefix);
   // @ts-ignore
@@ -42,18 +45,24 @@ let commands = [
   },
   {
     name: 'loadfont',
-    func: async (msg: any, args: any, unspacedArgs: any) => {
+    func: async (msg: any, args: any) => {
       const file = msg.attachments.first()?.url;
       try {
-        const res = await fetch(file);
-        if (!res.ok) {
-          msg.channel.send(
-            'There was an error loading the file. Did you send one?'
+        if (args.length !== 0) {
+          const res = await fetch(file);
+          if (!res.ok) {
+            msg.channel.send(
+              'There was an error loading the file. Did you send one?'
+            );
+          }
+          const text = await res.text();
+          figlet.parseFont(args[0], text);
+          msg.reply(`Font loaded succesfully as '${args[0]}'`);
+        } else {
+          msg.reply(
+            'You MUST provide a font name: ' + `${prefix}loadfont \`fontname\``
           );
         }
-        const text = await res.text();
-        figlet.parseFont('user', text);
-        msg.reply("Font loaded succesfully as 'user'");
       } catch (e) {
         msg.reply('Error: ' + e);
       }
@@ -163,14 +172,16 @@ client.on('messageCreate', (msg: any) => {
   let command;
   let args = msg.content.split(/\s/g).slice(1);
   if (msg.content.startsWith(prefix)) {
-    command =
-      commands[
-        commands.findIndex(
-          (e) =>
-            e.name ===
-            msg.content.slice(prefix.length).split(/\s/g)[0].toLowerCase()
-        )
-      ];
+    let cmdIndex = commands.findIndex(
+      (e) =>
+        e.name ===
+        msg.content.slice(prefix.length).split(/\s/g)[0].toLowerCase()
+    );
+    command = commands[cmdIndex] || {
+      func(msag) {
+        msag.reply('ERROR: Unknown command.');
+      },
+    };
   } else {
     return;
   }
