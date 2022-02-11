@@ -1,9 +1,17 @@
+// @ts-ignore
 import Discord, { Permissions } from 'discord.js';
 // @ts-ignore
 import figlet from 'figlet';
+// @ts-ignore
 import fs from 'fs';
+// @ts-ignore
 import path from 'path';
+// @ts-ignore
 import fetch from 'node-fetch';
+// @ts-ignore
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 const client = new Discord.Client({
   intents: ['GUILDS', 'GUILD_MESSAGES', 'DIRECT_MESSAGES'],
@@ -81,12 +89,15 @@ let commands = [
     func: (msg: any, args: any) => {
       if (args.length > 1) {
         let txt = args.slice(1).join(' ');
-        figlet(txt, {
-          font: args[0],
-          whitespaceBreak: true,
-          width: 100,
-        }, (err: any, art: any) =>
-          msg.channel.send(`\`\`\`${art || 'Unknown font'}\`\`\``)
+        figlet(
+          txt,
+          {
+            font: args[0],
+            whitespaceBreak: true,
+            width: 100,
+          },
+          (err: any, art: any) =>
+            msg.channel.send(`\`\`\`${art || 'Unknown font'}\`\`\``)
         );
       } else {
         msg.reply(`ERROR! Correct syntax: ${prefix}ascii \`font\` \`text\``);
@@ -182,7 +193,7 @@ client.on('messageCreate', (msg: any) => {
         msg.content.slice(prefix.length).split(/\s/g)[0].toLowerCase()
     );
     command = commands[cmdIndex] || {
-      func(msag) {
+      func(msag:any) {
         msag.reply('ERROR: Unknown command.');
       },
     };
