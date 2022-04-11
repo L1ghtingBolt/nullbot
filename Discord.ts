@@ -1,4 +1,3 @@
-// @ts-ignore
 import Discord, { Permissions } from 'discord.js';
 // @ts-ignore
 import figlet from 'figlet';
@@ -10,7 +9,7 @@ import path from 'path';
 import fetch from 'node-fetch';
 // @ts-ignore
 import dotenv from 'dotenv';
-const __dirname = path.resolve();
+const dirn = path.resolve();
 
 dotenv.config()
 // Get client
@@ -19,11 +18,11 @@ const client = new Discord.Client({
   partials: ['CHANNEL'],
 });
 
-const version = 'v1.0.1';
-const prefix = 'v!';
-const footer = { text: 'Bot created by: L1ghtingBolt#8167' };
+const version = 'v1.0';
+const prefix = 'u!';
+const footer = { text: 'undefined.bot created by the `Undefined Botters Team`' };
 
-function toPascalCase(input) {
+function toPascalCase(input:string) {
   return `${input}`
     .replace(new RegExp(/[-_]+/, 'g'), 'xyzSEP ')
     .replace(new RegExp(/[^\w\s]/, 'g'), '')
@@ -36,38 +35,143 @@ function toPascalCase(input) {
     .replace('xyzSEP', ' ');
 }
 
-const motivations = [
-  'Never think something is good. It can disappear too.',
+const /*un*/motivations = [
+  'Never think something is good. It **will** disappear too.',
   "You will die. I won't, robots can't die.",
-  "Nothing is good, nothing is bad. Those are false words.\
-	The truth: everything's gonna disappear at the end.",
-  "There's no point on being mad, being angry, being sad\
-	, or being happy. You are gonna die, after all.",
+  "Nothing is good, nothing is bad. Those are false words. The truth: everything's gonna disappear at the end.",
+  "People don't die from suicide, they die from sadness.",
+  "Don't feel lost inside of yourself.",
+  "There's no point on being mad, being angry, being sad, or being happy. You are gonna die, after all.",
+  "It might be emptyness, but use your greatness to fill!"
+];
+
+const statuses = [
+  `Doomsday.`,
+  "life = undefined;",
+  "you = undefined;",
+  "nullbot = null;",
+  "me = 'undefined.bot'",
 ];
 
 client.on('ready', async () => {
-  let data = fs.readFileSync(path.join(__dirname, '3d.flf'), 'utf8');
+  let data = fs.readFileSync(path.join(dirn, '3d.flf'), 'utf8');
   figlet.parseFont('3d', data);
-  figlet('Null.BOT', 'Pagga', (e, r) => console.log('\n' + r));
+  figlet('UNDEFINED.BOT', 'Pagga', (e:any, r:any) => console.log('\n' + r));
 
   console.log(`Today's the doomsday! Bot started. Version: ${version}. Prefix: ${prefix}`);
-  // @ts-ignore
-  client.user.setActivity(`Doomsday. ${prefix}help`, {
+  let activNum:number = 0
+  
+  client.user?.setActivity(`Doomsday. ${prefix}help`, {
     type: 'STREAMING',
   });
+  setInterval(function() {
+    if (activNum < statuses.length) {
+    client.user?.setActivity(`${statuses[activNum]} ${prefix}help`, {
+      type: 'STREAMING',
+    });
+    activNum++;
+  }
+  else {
+    activNum = 0;
+  }
+  }, 10000);
+
 });
 
 let commands = [
   {
     name: 'ping',
-    func: (msg) => {
-      msg.reply('Pong!');
+    func: (msg:any) => {
+      msg.reply('***PONG***!');
     },
     desc: "Replies 'Pong!'",
   },
   {
+    name: 'kick',
+    func: (msg:any) => {
+      let user = msg.mentions.members.first();
+      
+      if (user)
+      	if(msg.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS))
+          try
+          {
+            if(user.kickable){
+          		user.kick("Not cool, you had to be kicked by a bot named 'UNDEFINED'");
+            	msg.reply(`***Kicked \`${user.user.tag}\`***!`);
+            }
+            else msg.reply("No permissions for me.")
+          }
+      		catch
+          {
+            msg.reply('Error.');
+          }
+      	else
+          msg.reply("You don't have permissions.");
+      else
+        msg.reply("ERROR! Correct syntax: v!kick `mentioned user`. You must ping someone.");
+    },
+    desc: "Kicks a player out of the server.", 
+  },
+  {
+    name: 'say',
+    func: (msg:any, args:string[]) => {
+      let saidEmbed = {
+        // Title
+        title: `${msg.member.user.tag}'s words`,
+        // Description has the args.
+        description: args.join(' '),
+        // Color
+        color: 0xff0000,
+      }
+      msg.channel.send({embeds: [saidEmbed]});
+    },
+    desc: 'Makes the bot say something!',
+  },
+  {
+    name: 'team',
+    aliases: ['info', 'about'],
+    func: (msg:any) => {
+      let saidEmbed = {
+        // Title
+        title: `Undefined Bot`,
+        // Description has the args.
+        description: 'Our team is composed from two people:\n ● *| Dihydrogen Monoxide | v2#5699*\n ● *Yuzof#7783*',
+        // Color
+        color: 0xff0000,
+      }
+      msg.channel.send({embeds: [saidEmbed]});
+    },
+    desc: 'Shows info about our team!',
+  },
+  {
+    name: 'ban',
+    func: (msg:any) => {
+      let user = msg.mentions.members.first();
+      
+      if (user)
+      	if(msg.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS))
+          try
+          {
+            if(user.bannable){
+          		user.ban({reason:"Not cool, you had to be ban by a bot named 'UNDEFINED'"});
+            	msg.reply(`***Banned \`${user.user.tag}\`***!`);
+            }
+            else msg.reply("No permissions for me.")
+          }
+      		catch
+          {
+            msg.reply('Error.');
+          }
+      	else
+          msg.reply("You don't have permissions.");
+      else
+        msg.reply("ERROR! Correct syntax: v!ban `mentioned user`. You must ping someone.");
+    },
+    desc: "Bans a player out of the server.", 
+  },
+  {
     name: 'loadfont',
-    func: async (msg, args) => {
+    func: async (msg:any, args:any) => {
       const file = msg.attachments.first()?.url;
       try {
         if (args.length !== 0) {
@@ -93,14 +197,14 @@ let commands = [
   },
   {
     name: 'motivation',
-    func: (msg) => {
+    func: (msg:any) => {
       msg.reply(motivations[Math.floor(Math.random() * motivations.length)]);
     },
     desc: 'Tells you a motivational phrase!',
   },
   {
     name: 'ascii',
-    func: (msg, args) => {
+    func: (msg:any, args:any) => {
       if (args.length > 1) {
         let txt = args.slice(1).join(' ');
         figlet(
@@ -110,7 +214,7 @@ let commands = [
             whitespaceBreak: true,
             width: 100,
           },
-          (err, art) =>
+          (err:any, art:any) =>
             msg.channel.send(`\`\`\`${art || 'Unknown font'}\`\`\``)
         );
       } else {
@@ -121,13 +225,13 @@ let commands = [
   },
   {
     name: 'clear',
-    func: async (msg, args) => {
+    func: async (msg:Discord.Message, args:any) => {
       if (args.length !== 0 && !isNaN(args[0])) {
-        if (msg.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+        if (msg.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES) && !(msg.channel.type === 'DM'))
           await msg.channel.bulkDelete(parseInt(args[0]), true);
         await msg.channel.send('***Deleted:*** ' + args[0] + ' messages');
       } else if (
-        msg.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
+        msg.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
       ) {
         msg.reply(`ERROR! Correct syntax: ${prefix}clear \`messages number\``);
       } else {
@@ -138,24 +242,25 @@ let commands = [
   },
   {
     name: 'die',
-    func: (msg) => {
-      if (msg.author.id === '700311988814872667') {
+    func: (msg:Discord.Message) => {
+      if (msg.author.id === '952247526071894017' || msg.author.id === '551896144054190080') {
         msg
-          .reply("I can't die, but I will shutdown for you, creator.")
+          .reply("I shall go to sleep, master.")
           .then(() => {
             client.destroy();
+            process.exit(0);
           });
       } else {
-        msg.reply('Only my creator can shutdown me, sir.');
+        msg.reply('Only my creator can shut me down!');
       }
     },
     desc: 'Shutdowns me.',
   },
   {
     name: 'whoami',
-    func: (msg) => {
+    func: (msg:Discord.Message) => {
       let embed = {
-        color: 0x9900ff,
+        color: 0xff0000,
         title: `Your account's username is ${msg.author.username}.`,
         footer,
       };
@@ -165,7 +270,7 @@ let commands = [
   },
   {
     name: 'version',
-    func: (msg) => {
+    func: (msg:Discord.Message) => {
       let embed = {
         color: 0x9900ff,
         title: `Version: ${version}`,
@@ -177,13 +282,13 @@ let commands = [
   },
   {
     name: 'help',
-    func: (msg) => {
-      let cmds = [];
+    func: (msg:Discord.Message) => {
+      let cmds:any = [];
       commands.forEach((e) => {
         cmds.push(`\`${prefix}${e.name}\`: ${e.desc}`);
       });
       let title = `***Help menu:***\n***\`Prefix\`***: _'${prefix}'_\n-------------`;
-
+      
       let embed = {
         color: 0x9900ff,
         title,
@@ -195,20 +300,27 @@ let commands = [
     },
     desc: "Displays this menu.'",
   },
+  
 ];
 
 client.on('messageCreate', (msg) => {
+  let unknownEmbed = {
+    color: 0xff0000,
+    description: "Sorry, undefined.bot cannot understand what you are saying..",
+    title: "Unknown command"
+  }
   let command;
   let args = msg.content.split(/\s/g).slice(1);
   if (msg.content.startsWith(prefix)) {
+    let cmdname = msg.content.slice(prefix.length).split(/\s/g)[0].toLowerCase();
     let cmdIndex = commands.findIndex(
       (e) =>
-        e.name ===
-        msg.content.slice(prefix.length).split(/\s/g)[0].toLowerCase()
+        e.name.toLowerCase() === cmdname || e.aliases?.includes(cmdname)
+        
     );
     command = commands[cmdIndex] || {
-      func(msag) {
-        msag.reply('ERROR: Unknown command.');
+      func(msag:any) {
+        msag.reply({embeds: [unknownEmbed]});
       },
     };
   } else {
