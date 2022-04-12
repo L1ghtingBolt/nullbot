@@ -22,6 +22,21 @@ const version = 'v1.0';
 const prefix = 'u!';
 const footer = { text: 'undefined.bot created by the `Undefined Botters Team`' };
 
+class ErrorEmbed {
+  constructor(message: string) {
+    this.message = message;
+  }
+  message: string;
+  get() {
+    return {
+      color: 0xFF0000,
+      title: 'Error',
+      description: this.message,
+      footer: footer,
+    }
+  }
+}
+
 function toPascalCase(input:string) {
   return `${input}`
     .replace(new RegExp(/[-_]+/, 'g'), 'xyzSEP ')
@@ -88,11 +103,11 @@ let commands = [
   },
   {
     name: 'kick',
-    func: (msg:any) => {
-      let user = msg.mentions.members.first();
+    func: (msg:Discord.Message) => {
+      let user = msg.mentions.members?.first();
       
       if (user)
-      	if(msg.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS))
+      	if(msg.member?.permissions.has(Permissions.FLAGS.KICK_MEMBERS))
           try
           {
             if(user.kickable){
@@ -103,23 +118,31 @@ let commands = [
           }
       		catch
           {
-            msg.reply('Error.');
+            let emb = new ErrorEmbed("I couldn't kick this user.");
+            // Send error embed to the channel
+            msg.channel.send({embeds:[emb.get()]});
           }
-      	else
-          msg.reply("You don't have permissions.");
-      else
-        msg.reply("ERROR! Correct syntax: v!kick `mentioned user`. You must ping someone.");
-    },
+      	else {
+          let emb = new ErrorEmbed("You don't have permission to perform this action.");
+          // Send error embed to the channel
+          msg.channel.send({embeds:[emb.get()]});
+        }
+      else{
+        let emb = new ErrorEmbed("You didn't mention a user  to kick.");
+        // Send error embed to the channel
+        msg.channel.send({embeds:[emb.get()]});
+      }
+      },
     desc: "Kicks a player out of the server.", 
   },
   {
     name: 'say',
-    func: (msg:any, args:string[]) => {
+    func: (msg:Discord.Message, args:string[]) => {
       let saidEmbed = {
         // Title
-        title: `${msg.member.user.tag}'s words`,
-        // Description has the args.
-        description: args.join(' '),
+        title: args.join(' '),
+        // Description.
+        description: msg.member?.user.tag,
         // Color
         color: 0xff0000,
       }
@@ -130,7 +153,7 @@ let commands = [
   {
     name: 'team',
     aliases: ['info', 'about'],
-    func: (msg:any) => {
+    func: (msg:Discord.Message) => {
       let saidEmbed = {
         // Title
         title: `Undefined Bot`,
@@ -152,51 +175,73 @@ let commands = [
       	if(msg.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS))
           try
           {
+            let banEmbed = {
+              color:0xff0000,
+              title: 'Banned',
+              description: `${user.user.tag} has been banned.`,
+            }
             if(user.bannable){
           		user.ban({reason:"Not cool, you had to be ban by a bot named 'UNDEFINED'"});
-            	msg.reply(`***Banned \`${user.user.tag}\`***!`);
+            	msg.channel.send({embeds:[banEmbed]});
             }
-            else msg.reply("No permissions for me.")
+            else {
+              let emb = new ErrorEmbed("I don't have permissions to ban this user.");
+              // Send error embed to the channel
+              msg.channel.send({embeds:[emb.get()]});
+            }
           }
       		catch
           {
-            msg.reply('Error.');
+            let emb = new ErrorEmbed("I couldn't ban this user.");
+            // Send error embed to the channel
+            msg.channel.send({embeds:[emb.get()]});
           }
-      	else
-          msg.reply("You don't have permissions.");
-      else
-        msg.reply("ERROR! Correct syntax: v!ban `mentioned user`. You must ping someone.");
+      	else{
+          let emb = new ErrorEmbed("You don't have permissions to perform this action.");
+          // Send error embed to the channel
+          msg.channel.send({embeds:[emb.get()]});
+        }
+      else{
+        let emb = new ErrorEmbed("You didn't mention a user  to ban.");
+        // Send error embed to the channel
+        msg.channel.send({embeds:[emb.get()]});
+      }
     },
     desc: "Bans a player out of the server.", 
   },
   {
     name: 'loadfont',
-    func: async (msg:any, args:any) => {
+    func: async (msg:Discord.Message, args:any) => {
       const file = msg.attachments.first()?.url;
+      let emb = new ErrorEmbed("I couldn't load the font.");
+      let succEmb = {
+        color: 0x00ff00,
+        title: "Success",
+        description: "Font loaded successfully.",
+      }
       try {
-        if (args.length !== 0) {
+        if (args.length !== 0 && file) {
           const res = await fetch(file);
           if (!res.ok) {
-            msg.channel.send(
-              'There was an error loading the file. Did you send one?'
-            );
+            msg.channel.send({embeds:[emb.get()]});
           }
           const text = await res.text();
           figlet.parseFont(toPascalCase(args[0]), text);
-          msg.reply(`Font loaded succesfully as '${args[0]}'`);
+          msg.channel.send({embeds:[succEmb]});
         } else {
-          msg.reply(
-            'You MUST provide a font name: ' + `${prefix}loadfont \`fontname\``
-          );
+          emb.message = "You didn't upload a file or didn't write a font name. " + `${prefix}loadfont \`fontname\``;
+          msg.channel.send({embeds:[emb.get()]});
         }
       } catch (e) {
-        msg.reply('Error: ' + e);
+        emb.message = e + '\n';
+        msg.channel.send({embeds:[emb.get()]});
       }
     },
     desc: 'Loads FLF format font attached.',
   },
   {
     name: 'motivation',
+    aliases: ['motivate', 'phrase', 'phrases', 'citation'],
     func: (msg:any) => {
       msg.reply(motivations[Math.floor(Math.random() * motivations.length)]);
     },
@@ -204,8 +249,10 @@ let commands = [
   },
   {
     name: 'ascii',
-    func: (msg:any, args:any) => {
+    aliases: ['font', 'asciiart', 'text2ascii', 'figlet', 'figletfont'],
+    func: (msg:Discord.Message, args:any) => {
       if (args.length > 1) {
+        let emb = new ErrorEmbed("Unknown font name.");
         let txt = args.slice(1).join(' ');
         figlet(
           txt,
@@ -215,27 +262,38 @@ let commands = [
             width: 100,
           },
           (err:any, art:any) =>
-            msg.channel.send(`\`\`\`${art || 'Unknown font'}\`\`\``)
+            art ? msg.channel.send(`\`\`\`${art}\`\`\``) : msg.channel.send({embeds:[emb.get()]}),
         );
       } else {
-        msg.reply(`ERROR! Correct syntax: ${prefix}ascii \`font\` \`text\``);
+        let emb = new ErrorEmbed("You either didn't write a text to convert or a font. " + `Correct syntax: ${prefix}ascii \`font\` \`text\``);
+        msg.channel.send({embeds: [emb.get()]});
       }
     },
     desc: 'Replies the message you sent, but with ascii art',
   },
   {
     name: 'clear',
-    func: async (msg:Discord.Message, args:any) => {
-      if (args.length !== 0 && !isNaN(args[0])) {
+    func: async (msg:Discord.Message, args:string[]) => {
+      let embed = {
+        color: 0xff0000,
+        title: "Clear",
+        description: "Cleared " + args[0] + " messages.",
+        footer: footer,
+      }
+      if (args.length !== 0 && !isNaN(parseInt(args[0]))) {
         if (msg.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES) && !(msg.channel.type === 'DM'))
           await msg.channel.bulkDelete(parseInt(args[0]), true);
-        await msg.channel.send('***Deleted:*** ' + args[0] + ' messages');
+        await msg.channel.send({embeds:[embed]});
       } else if (
         msg.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
       ) {
-        msg.reply(`ERROR! Correct syntax: ${prefix}clear \`messages number\``);
+        embed.title = "Error!";
+        embed.description = `Correct syntax: ${prefix}clear \`messages number\``
+        msg.channel.send({embeds:[embed]});
       } else {
-        msg.reply('You do not have Manage-Messages permission.');
+        embed.title = "Error!";
+        embed.description = 'You don\'t have permissions to perform this action.';
+        msg.channel.send({embeds:[embed]});
       }
     },
     desc: 'Deletes (x) number of messages.',
@@ -244,8 +302,12 @@ let commands = [
     name: 'die',
     func: (msg:Discord.Message) => {
       if (msg.author.id === '952247526071894017' || msg.author.id === '551896144054190080') {
-        msg
-          .reply("I shall go to sleep, master.")
+        let embed = {
+          title: 'Shutting down...',
+          description: 'I can\'t die, but I will shutdown for you, master.',
+          color: 0xff0000
+        }
+        msg.channel.send({embeds:[embed]})
           .then(() => {
             client.destroy();
             process.exit(0);
@@ -272,7 +334,7 @@ let commands = [
     name: 'version',
     func: (msg:Discord.Message) => {
       let embed = {
-        color: 0x9900ff,
+        color: 0xff0000,
         title: `Version: ${version}`,
         footer,
       };
@@ -290,7 +352,7 @@ let commands = [
       let title = `***Help menu:***\n***\`Prefix\`***: _'${prefix}'_\n-------------`;
       
       let embed = {
-        color: 0x9900ff,
+        color: 0xff0000,
         title,
         description: `${cmds.join('\n')}`,
         footer,
