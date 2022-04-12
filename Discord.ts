@@ -106,6 +106,26 @@ let commands = [
     desc: "Replies 'Pong!'",
   },
   {
+    name: 'fontlist',
+    func: (msg:Discord.Message) => {
+      figlet.fonts(function(err:any, fonts:any) {
+        if (err) {
+            console.log('something went wrong...');
+            console.dir(err);
+            return;
+        }
+        let emb = {
+          color: 0x00FF00,
+          title: "Font List",
+          description: fonts.join("**, **"),
+        }
+        msg.channel.send({embeds: [emb]});
+      })
+      
+    },
+    desc: "Tells you the names of the default fonts. For fonts with mutiple words replace ' ' with '_' :)",
+  },
+  {
     name: 'kick',
     func: (msg:Discord.Message) => {
       let user = msg.mentions.members?.first();
