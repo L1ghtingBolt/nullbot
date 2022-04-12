@@ -116,8 +116,8 @@ let commands = [
           {
             let kickEmbed = {
               color:0xff0000,
-              title: 'Banned',
-              description: `${user.user.tag} has been banned.`,
+              title: 'Kicked',
+              description: `${user.user.tag} has been **kicked**.`,
             }
             if(user.kickable){
           		user.kick("Not cool, you had to be kicked by a bot named 'UNDEFINED'");
@@ -187,10 +187,10 @@ let commands = [
             let banEmbed = {
               color:0xff0000,
               title: 'Banned',
-              description: `${user.user.tag} has been banned.`,
+              description: `${user.user.tag} has been **banned**.`,
             }
             if(user.bannable){
-          		user.ban({reason:"Not cool, you had to be ban by a bot named 'UNDEFINED'"});
+          		user.ban({reason:"Not cool, you had to be banned by a bot named 'UNDEFINED'"});
             	msg.channel.send({embeds:[banEmbed]});
             }
             else {
