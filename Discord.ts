@@ -96,8 +96,12 @@ client.on('ready', async () => {
 let commands = [
   {
     name: 'ping',
-    func: (msg:any) => {
-      msg.reply('***PONG***!');
+    func: (msg:Discord.Message) => {
+      let emb = {
+        color: 0x00FF00,
+        title: "P o n g",
+      }
+      msg.channel.send({embeds: [emb]});
     },
     desc: "Replies 'Pong!'",
   },
@@ -110,26 +114,31 @@ let commands = [
       	if(msg.member?.permissions.has(Permissions.FLAGS.KICK_MEMBERS))
           try
           {
+            let kickEmbed = {
+              color:0xff0000,
+              title: 'Banned',
+              description: `${user.user.tag} has been banned.`,
+            }
             if(user.kickable){
           		user.kick("Not cool, you had to be kicked by a bot named 'UNDEFINED'");
-            	msg.reply(`***Kicked \`${user.user.tag}\`***!`);
+            	msg.channel.send({embeds:[kickEmbed]});
             }
-            else msg.reply("No permissions for me.")
+            else {
+              let emb = new ErrorEmbed("I don't have permissions to kick this user.");
+              msg.channel.send({embeds:[emb.get()]});
+            }
           }
       		catch
           {
             let emb = new ErrorEmbed("I couldn't kick this user.");
-            // Send error embed to the channel
             msg.channel.send({embeds:[emb.get()]});
           }
       	else {
           let emb = new ErrorEmbed("You don't have permission to perform this action.");
-          // Send error embed to the channel
           msg.channel.send({embeds:[emb.get()]});
         }
       else{
         let emb = new ErrorEmbed("You didn't mention a user  to kick.");
-        // Send error embed to the channel
         msg.channel.send({embeds:[emb.get()]});
       }
       },
@@ -366,11 +375,7 @@ let commands = [
 ];
 
 client.on('messageCreate', (msg) => {
-  let unknownEmbed = {
-    color: 0xff0000,
-    description: "Sorry, undefined.bot cannot understand what you are saying..",
-    title: "Unknown command"
-  }
+  let unknownEmbed = new ErrorEmbed("Unknown command.").get();
   let command;
   let args = msg.content.split(/\s/g).slice(1);
   if (msg.content.startsWith(prefix)) {
