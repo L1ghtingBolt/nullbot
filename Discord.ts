@@ -58,7 +58,7 @@ const statuses = [
 
 client.on('ready', async () => {
   let data = fs.readFileSync(path.join(dirn, '3d.flf'), 'utf8');
-  figlet.parseFont('3d', data);
+  figlet.parseFont('3D', data);
   figlet('UNDEFINED.BOT', 'Pagga', (e:any, r:any) => console.log('\n' + r));
 
   console.log(`Today's the doomsday! Bot started. Version: ${version}. Prefix: ${prefix}`);
