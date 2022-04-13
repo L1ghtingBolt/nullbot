@@ -135,8 +135,8 @@ let commands = [
                     return;
                 }
                 let emb = {
-                    color: 0x00FF00,
-                    title: "Font list",
+                    color: 0xFF0000,
+                    title: "Font List",
                     description: fonts.join("**, **"),
                 };
                 msg.channel.send({ embeds: [emb] });
@@ -205,9 +205,21 @@ let commands = [
                 // Title
                 title: `Undefined Bot`,
                 // Description has the args.
-                description: 'Our team is composed from two people:\n ● *| Dihydrogen Monoxide | v2#5699*\n ● *Yuzof#7783*',
+                description: 'Our team is composed from two people:',
                 // Color
                 color: 0xff0000,
+                fields: [
+                    {
+                        name: '**`| Dihydrogen Monoxide | v2#5699`**',
+                        value: 'Made the logic from the bot, and also the bot itself.',
+                        inline: true,
+                    },
+                    {
+                        name: '**`Yuzof#7783`** *(Left the team)*',
+                        value: 'Fixed some messages from the bot. Also had the idea of making the bot',
+                        inline: true,
+                    },
+                ]
             };
             msg.channel.send({ embeds: [saidEmbed] });
         },
