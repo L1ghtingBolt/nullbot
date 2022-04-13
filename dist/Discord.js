@@ -65,15 +65,6 @@ class ErrorEmbed {
         };
     }
 }
-function toPascalCase(input) {
-    return `${input}`
-        .replace(new RegExp(/[-_]+/, 'g'), 'xyzSEP ')
-        .replace(new RegExp(/[^\w\s]/, 'g'), '')
-        .replace(new RegExp(/\s+(.)(\w+)/, 'g'), ($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`)
-        .replace(new RegExp(/\s/, 'g'), '')
-        .replace(new RegExp(/\w/), (s) => s.toUpperCase())
-        .replace('xyzSEP', ' ');
-}
 const /*un*/ motivations = [
     'Never think something is good. It **will** disappear too.',
     "You will die. I won't, robots can't die.",
@@ -283,7 +274,7 @@ let commands = [
                         msg.channel.send({ embeds: [emb.get()] });
                     }
                     const text = yield res.text();
-                    figlet_1.default.parseFont(toPascalCase(args[0]), text);
+                    figlet_1.default.parseFont(args.join(" "), text);
                     msg.channel.send({ embeds: [succEmb] });
                 }
                 else {
@@ -314,7 +305,7 @@ let commands = [
                 let emb = new ErrorEmbed("Unknown font name.");
                 let txt = args.slice(1).join(' ');
                 (0, figlet_1.default)(txt, {
-                    font: toPascalCase(args[0]),
+                    font: args[0].replace("_", " "),
                     whitespaceBreak: true,
                     width: 100,
                 }, (err, art) => art ? msg.channel.send(`\`\`\`${art}\`\`\``) : msg.channel.send({ embeds: [emb.get()] }));
@@ -325,6 +316,13 @@ let commands = [
             }
         },
         desc: 'Replies the message you sent, but with ascii art',
+    },
+    {
+        name: 'error',
+        func: (msg, args) => {
+            args[0].join("shoot");
+        },
+        desc: "Errors",
     },
     {
         name: 'clear',
@@ -410,10 +408,11 @@ let commands = [
                     inline: true,
                 });
             });
-            let title = `***Help menu:***\n***\`Prefix\`***: _'${prefix}'_\n________`;
+            let title = `***Help menu:***`;
             let embed = {
                 color: 0xff0000,
                 title,
+                description: `***\`Prefix\`***: _'${prefix}'_`,
                 fields: cmds,
                 footer,
             };
@@ -423,26 +422,32 @@ let commands = [
     },
 ];
 client.on('messageCreate', (msg) => {
-    let unknownEmbed = new ErrorEmbed("Unknown command.").get();
+    let unknownEmbed = new ErrorEmbed("Unknown command.");
     let command;
     let args = msg.content.split(/\s/g).slice(1);
+    if (msg.author.bot) {
+        return;
+    }
     if (msg.content.startsWith(prefix)) {
         let cmdname = msg.content.slice(prefix.length).split(/\s/g)[0].toLowerCase();
         let cmdIndex = commands.findIndex((e) => { var _a; return e.name.toLowerCase() === cmdname || ((_a = e.aliases) === null || _a === void 0 ? void 0 : _a.includes(cmdname)); });
         command = commands[cmdIndex] || {
             func(msag) {
-                msag.reply({ embeds: [unknownEmbed] });
+                msag.channel.send({ embeds: [unknownEmbed.get()] });
             },
         };
     }
     else {
         return;
     }
-    if (msg.author.bot) {
-        return;
-    }
     if (command.func) {
-        command.func(msg, args);
+        try {
+            command.func(msg, args);
+        }
+        catch (e) {
+            unknownEmbed.message = e + "\n";
+            msg.channel.send({ embeds: [unknownEmbed.get()] });
+        }
     }
 });
 client.login(process.env.TOKEN);
