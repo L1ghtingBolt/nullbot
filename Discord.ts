@@ -37,18 +37,6 @@ class ErrorEmbed {
   }
 }
 
-function toPascalCase(input:string) {
-  return `${input}`
-    .replace(new RegExp(/[_]+/, 'g'), 'xyzSEP ')
-    .replace(new RegExp(/[^\w\s]/, 'g'), '')
-    .replace(
-      new RegExp(/\s+(.)(\w+)/, 'g'),
-      ($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`
-    )
-    .replace(new RegExp(/\s/, 'g'), '')
-    .replace(new RegExp(/\w/), (s) => s.toUpperCase())
-    .replace('xyzSEP', ' ');
-}
 
 const /*un*/motivations = [
   'Never think something is good. It **will** disappear too.',
@@ -267,7 +255,7 @@ let commands = [
             msg.channel.send({embeds:[emb.get()]});
           }
           const text = await res.text();
-          figlet.parseFont(toPascalCase(args[0]), text);
+          figlet.parseFont(args[0].join(" "), text);
           msg.channel.send({embeds:[succEmb]});
         } else {
           emb.message = "You didn't upload a file or didn't write a font name. " + `${prefix}loadfont \`fontname\``;
@@ -298,7 +286,7 @@ let commands = [
         figlet(
           txt,
           {
-            font: toPascalCase(args[0]),
+            font: args[0].replace("_", " "),
             whitespaceBreak: true,
             width: 100,
           },
