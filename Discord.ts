@@ -39,7 +39,7 @@ class ErrorEmbed {
 
 function toPascalCase(input:string) {
   return `${input}`
-    .replace(new RegExp(/[-_]+/, 'g'), 'xyzSEP ')
+    .replace(new RegExp(/[_]+/, 'g'), 'xyzSEP ')
     .replace(new RegExp(/[^\w\s]/, 'g'), '')
     .replace(
       new RegExp(/\s+(.)(\w+)/, 'g'),
@@ -123,7 +123,7 @@ let commands = [
       })
       
     },
-    desc: "Tells you the names of the default fonts. For fonts with mutiple words replace ' ' with '_' :)",
+    desc: "Tells you the names of the default fonts. Replace spaces with '_'",
   },
   {
     name: 'kick',
@@ -158,7 +158,7 @@ let commands = [
           msg.channel.send({embeds:[emb.get()]});
         }
       else{
-        let emb = new ErrorEmbed("You didn't mention a user  to kick.");
+        let emb = new ErrorEmbed("You didn't mention a user to kick.");
         msg.channel.send({embeds:[emb.get()]});
       }
       },
@@ -187,7 +187,7 @@ let commands = [
         // Title
         title: `Undefined Bot`,
         // Description has the args.
-        description: 'Our team is composed from two people:',
+        description: 'Our team was composed from two people:',
         // Color
         color: 0xff0000,
         fields: [
@@ -243,7 +243,7 @@ let commands = [
           msg.channel.send({embeds:[emb.get()]});
         }
       else{
-        let emb = new ErrorEmbed("You didn't mention a user  to ban.");
+        let emb = new ErrorEmbed("You didn't mention a user to ban.");
         // Send error embed to the channel
         msg.channel.send({embeds:[emb.get()]});
       }
@@ -387,21 +387,27 @@ let commands = [
     name: 'help',
     func: (msg:Discord.Message) => {
       let cmds:any = [];
+      
       commands.forEach((e) => {
-        cmds.push(`\`${prefix}${e.name}\`: ${e.desc}`);
+        cmds.push({
+          name: `${e.name}`,
+          value: `\`\`\`${e.desc}\`\`\``,
+          inline: true,
+        });
       });
-      let title = `***Help menu:***\n***\`Prefix\`***: _'${prefix}'_\n-------------`;
+      let title = `***Help menu:***`;
       
       let embed = {
         color: 0xff0000,
         title,
-        description: `${cmds.join('\n')}`,
+        description: `***\`Prefix\`***: _'${prefix}'_`,
+        fields: cmds,
         footer,
       };
 
       msg.channel.send({ embeds: [embed] });
     },
-    desc: "Displays this menu.'",
+    desc: "Displays this menu.",
   },
   
 ];
